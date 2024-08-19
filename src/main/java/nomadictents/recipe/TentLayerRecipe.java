@@ -46,8 +46,8 @@ public class TentLayerRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer craftingInventory) {
-        ItemStack result = super.assemble(craftingInventory);
+    public ItemStack assemble(CraftingContainer craftingInventory, RegistryAccess registryAccess) {
+        ItemStack result = super.assemble(craftingInventory, registryAccess);
 
         // locate input tent
         ItemStack tent = TentSizeRecipe.getStackMatching(craftingInventory, i -> i.getItem() instanceof TentItem);

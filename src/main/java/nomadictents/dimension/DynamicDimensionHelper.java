@@ -1,7 +1,6 @@
 package nomadictents.dimension;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -9,7 +8,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.Mth;
@@ -18,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
@@ -29,10 +28,8 @@ import net.minecraftforge.event.level.LevelEvent;
 import nomadictents.NomadicTents;
 import nomadictents.structure.TentPlacer;
 import nomadictents.util.Tent;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
