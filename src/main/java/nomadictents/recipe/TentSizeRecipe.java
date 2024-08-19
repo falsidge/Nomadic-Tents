@@ -69,7 +69,7 @@ public class TentSizeRecipe extends ShapedRecipe {
         public ShapedRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             // read the recipe from shapeless recipe serializer
             final ShapedRecipe recipe = super.fromJson(recipeId, json);
-            return new TentSizeRecipe(recipeId, recipe.getResultItem(null),
+            return new TentSizeRecipe(recipeId, recipe.getResultItem(RegistryAccess.EMPTY),
                     recipe.getWidth(), recipe.getHeight(), recipe.getIngredients());
         }
 

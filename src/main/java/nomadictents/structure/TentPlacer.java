@@ -20,7 +20,16 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.templatesystem.*;
+import net.minecraft.world.level.levelgen.structure.templatesystem.AlwaysTrueTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.ProcessorRule;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -694,7 +703,7 @@ public final class TentPlacer {
                         continue;
                     }
                     // determine which block state to place
-                    rigid = level.getBlockState(p.above()).is(Blocks.BARRIER);
+                    rigid = level.getBlockState(p.above()).getPistonPushReaction() == PushReaction.BLOCK;
                     state = rigid ? rigidDirt : dirt;
                     // place in a column at this location
                     for (int y = 0, l = layersOld + 1; y < l; y++) {
@@ -718,7 +727,7 @@ public final class TentPlacer {
                     // determine block location
                     p = origin.offset(x, 0, z);
                     // determine which block state to place
-                    rigid = level.getBlockState(p.above()).is(Blocks.BARRIER);
+                    rigid = level.getBlockState(p.above()).getPistonPushReaction() == PushReaction.BLOCK;
                     if (rigid) {
                         state = rigidDirt;
                     } else {

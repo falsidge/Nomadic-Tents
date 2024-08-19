@@ -4,8 +4,7 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.category.IRecipeCategory;
-//import mezz.jei.common.plugins.vanilla.crafting.CraftingCategoryExtension;
+import net.minecraft.core.RegistryAccess;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +37,7 @@ public class JEIColorRecipe implements ICraftingCategoryExtension{
                 .map(ingredient -> List.of(ingredient.getItems()))
                 .toList();
         inputs.forEach(list -> list.forEach(COLOR_TO_WHITE));
-        ItemStack resultItem = recipe.getResultItem(null);
+        ItemStack resultItem = recipe.getResultItem(RegistryAccess.EMPTY);
 
         craftingGridHelper.createAndSetInputs(builder, VanillaTypes.ITEM_STACK, inputs, getWidth(), getHeight());
         craftingGridHelper.createAndSetOutputs(builder, VanillaTypes.ITEM_STACK, List.of(resultItem));

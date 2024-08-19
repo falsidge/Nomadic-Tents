@@ -3,7 +3,8 @@ package nomadictents.dimension;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
-
 
 /**
  * @author Commoble, used with permission.
@@ -77,9 +77,7 @@ public class DynamicDimensionHelper {
         // add 180 degrees to target rotation
         targetRot = Mth.wrapDegrees(targetRot + 180.0F);
         // ensure destination chunk is loaded before we put the player in it
-        Vec3i targetVec3i = new Vec3i((int) targetVec.x(), (int) targetVec.y(), (int) targetVec.z());
-
-        targetWorld.getChunk(new BlockPos(targetVec3i));
+        targetWorld.getChunk(new BlockPos((int) targetVec.x, (int) targetVec.y, (int) targetVec.z)); // TODO: probably a better way to do this
         // teleport the entity
         sendToDimension(entity, targetWorld, targetVec, targetRot);
     }
@@ -95,8 +93,7 @@ public class DynamicDimensionHelper {
      */
     private static void sendToDimension(Entity entity, ServerLevel targetWorld, Vec3 targetVec, float targetRot) {
         // ensure destination chunk is loaded before we put the player in it
-        Vec3i targetVec3i = new Vec3i((int) targetVec.x(), (int) targetVec.y(), (int) targetVec.z());
-        targetWorld.getChunk(new BlockPos(targetVec3i));
+        targetWorld.getChunk(new BlockPos((int) targetVec.x, (int) targetVec.y, (int) targetVec.z));
         // teleport the entity
         ITeleporter teleporter = DirectTeleporter.create(entity, targetVec, targetRot, TentPlacer.TENT_DIRECTION);
         entity.changeDimension(targetWorld, teleporter);
@@ -189,8 +186,7 @@ public class DynamicDimensionHelper {
         LevelStorageAccess levelSave = server.storageSource;
 
         final WorldData worldData = server.getWorldData();
-
-//        final WorldGenSettings worldGenSettings = worldData.world;
+        final WorldGenSettings worldGenSettings = worldData.worldGenSettings();
         final DerivedLevelData derivedLevelData = new DerivedLevelData(worldData, worldData.overworldData());
         // now we have everything we need to create the dimension and the level
         // this is the same order server init creates levels:
@@ -200,11 +196,6 @@ public class DynamicDimensionHelper {
         // register the actual dimension
         Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
         final WorldOptions worldGenSettings = worldData.worldGenOptions();
-
-        // now we have everything we need to create the dimension and the level
-        // this is the same order server init creates levels:
-        // the dimensions are already registered when levels are created, we'll do that first
-        // then instantiate level, add border listener, add to map, fire world load event
 
         // register the actual dimension
         LayeredRegistryAccess<RegistryLayer> registries = server.registries();
@@ -273,9 +264,6 @@ public class DynamicDimensionHelper {
 
         // fire world load event
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(newWorld)); // event isn't cancellable
-
-
-        // update clients' dimension lists
 
         return newWorld;
     }

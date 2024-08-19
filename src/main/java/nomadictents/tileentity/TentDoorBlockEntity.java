@@ -37,7 +37,6 @@ import nomadictents.util.TentSize;
 import nomadictents.util.TentType;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -331,16 +330,8 @@ public class TentDoorBlockEntity extends BlockEntity {
      */
     private boolean monstersNearby(Player player) {
         final AABB box = new AABB(this.worldPosition).inflate(8.0D, 5.0D, 8.0D);
-        try (Level level = player.level())
-        {
-            List<Monster> list = level.getEntitiesOfClass(Monster.class, box, e -> e.isPreventingPlayerRest(player));
-            return !list.isEmpty();
-        }
-        catch (IOException e)
-        {
-            return false;
-        }
-
+        List<Monster> list = player.level().getEntitiesOfClass(Monster.class, box, e -> e.isPreventingPlayerRest(player));
+        return !list.isEmpty();
     }
 
     public Tent getTent() {

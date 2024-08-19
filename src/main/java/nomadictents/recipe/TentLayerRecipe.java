@@ -46,8 +46,8 @@ public class TentLayerRecipe extends ShapedRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer craftingInventory, RegistryAccess registery) {
-        ItemStack result = super.assemble(craftingInventory, registery);
+    public ItemStack assemble(CraftingContainer craftingInventory) {
+        ItemStack result = super.assemble(craftingInventory);
 
         // locate input tent
         ItemStack tent = TentSizeRecipe.getStackMatching(craftingInventory, i -> i.getItem() instanceof TentItem);
@@ -82,7 +82,7 @@ public class TentLayerRecipe extends ShapedRecipe {
             if (json.has("layer")) {
                 bLayer = json.get("layer").getAsByte();
             }
-            return new TentLayerRecipe(recipeId, recipe.getResultItem(null), bLayer,
+            return new TentLayerRecipe(recipeId, recipe.getResultItem(RegistryAccess.EMPTY), bLayer,
                     recipe.getWidth(), recipe.getHeight(), recipe.getIngredients());
         }
 
@@ -90,7 +90,7 @@ public class TentLayerRecipe extends ShapedRecipe {
         public ShapedRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
             ShapedRecipe recipe = super.fromNetwork(recipeId, buffer);
             byte layer = buffer.readByte();
-            return new TentLayerRecipe(recipeId, recipe.getResultItem(null), layer,
+            return new TentLayerRecipe(recipeId, recipe.getResultItem(RegistryAccess.EMPTY), layer,
                     recipe.getWidth(), recipe.getHeight(), recipe.getIngredients());
         }
 

@@ -5,8 +5,6 @@ import com.mojang.serialization.DataResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.util.StringRepresentable;
 
-import java.util.function.Supplier;
-
 public enum TentSize implements StringRepresentable {
     TINY("tiny", ChatFormatting.RED),
     SMALL("small", ChatFormatting.BLUE),
@@ -31,8 +29,7 @@ public enum TentSize implements StringRepresentable {
                 return DataResult.success(t);
             }
         }
-        Supplier<String> supplier = () -> "Failed to parse tent size '" + id + "'";
-        return DataResult.error(supplier);
+        return DataResult.error(() -> "Failed to parse tent size '" + id + "'");
     }
 
     @Override

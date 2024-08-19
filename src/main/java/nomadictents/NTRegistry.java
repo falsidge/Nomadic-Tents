@@ -5,7 +5,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -37,7 +42,11 @@ import nomadictents.tileentity.TentDoorBlockEntity;
 import nomadictents.util.TentSize;
 import nomadictents.util.TentType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public final class NTRegistry {
@@ -138,8 +147,8 @@ public final class NTRegistry {
         // register tents for each type and size
         for (TentType type : TentType.values()) {
             for (TentSize width : TentSize.values()) {
-                TENTS.add(ITEMS.register(width.getSerializedName() + "_" + type.getSerializedName(), () ->
-                        new TentItem(type, width, new Item.Properties().stacksTo(1))));
+                ITEMS.register(width.getSerializedName() + "_" + type.getSerializedName(), () ->
+                        new TentItem(type, width, new Item.Properties().stacksTo(1)));
             }
         }
 
