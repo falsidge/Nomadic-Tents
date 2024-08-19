@@ -141,7 +141,7 @@ public class TentItem extends Item {
             }
             // determine if placement position is valid
             BlockState placeBlockState = context.getLevel().getBlockState(placePos);
-            if (placeBlockState.canBeReplaced()) {
+            if (!placeBlockState.canBeReplaced()) {
                 return InteractionResult.FAIL;
             }
             if (canPlaceTent(context.getLevel(), placePos, context.getHorizontalDirection())) {
