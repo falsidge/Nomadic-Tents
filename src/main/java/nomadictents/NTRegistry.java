@@ -196,7 +196,6 @@ public final class NTRegistry {
     public static final RegistryObject<Block> RIGID_DIRT = BLOCKS.register("rigid_dirt", () ->
             new TentBlock(BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).pushReaction(PushReaction.BLOCK)
                     .sound(SoundType.GRAVEL)));
-
     public static final RegistryObject<Block> DOOR_FRAME = registerFrame("door_frame");
     public static final RegistryObject<Block> YURT_WALL_FRAME = registerFrame("yurt_wall_frame");
     public static final RegistryObject<Block> YURT_ROOF_FRAME = registerFrame("yurt_roof_frame");
@@ -278,6 +277,7 @@ public final class NTRegistry {
 
         return () -> new BlockItem(blockSupplier.get(), props);
     }
+
     @SubscribeEvent
     public static void buildContents(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == TAB.getKey()) {
