@@ -1,4 +1,6 @@
 {
+
+  "has_precipitation": false,
   "scale": 0.05,
   "effects": {
     "mood_sound": {

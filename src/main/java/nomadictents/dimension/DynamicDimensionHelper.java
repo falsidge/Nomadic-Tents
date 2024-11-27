@@ -1,13 +1,14 @@
 package nomadictents.dimension;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.Mth;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
 import net.minecraft.world.level.storage.WorldData;
@@ -27,12 +29,15 @@ import net.minecraftforge.event.level.LevelEvent;
 import nomadictents.NomadicTents;
 import nomadictents.structure.TentPlacer;
 import nomadictents.util.Tent;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
+
+import static org.apache.commons.lang3.reflect.FieldUtils.getField;
+
 
 /**
  * @author Commoble, used with permission.
@@ -56,7 +61,7 @@ public class DynamicDimensionHelper {
         // ensure destination chunk is loaded before we put the player in it
         targetWorld.getChunk(targetPos);
         // place tent at location
-        TentPlacer.getInstance().placeOrUpgradeTent(targetWorld, targetPos, tent, (ServerLevel) entity.level, entity.position(), entity.getYRot());
+        TentPlacer.getInstance().placeOrUpgradeTent(targetWorld, targetPos, tent, (ServerLevel) entity.level(), entity.position(), entity.getYRot());
         // teleport the entity
         sendToDimension(entity, targetWorld, targetVec, targetRot);
     }
@@ -73,7 +78,9 @@ public class DynamicDimensionHelper {
         // add 180 degrees to target rotation
         targetRot = Mth.wrapDegrees(targetRot + 180.0F);
         // ensure destination chunk is loaded before we put the player in it
-        targetWorld.getChunk(new BlockPos(targetVec));
+        Vec3i targetVec3i = new Vec3i((int) targetVec.x(), (int) targetVec.y(), (int) targetVec.z());
+
+        targetWorld.getChunk(new BlockPos(targetVec3i));
         // teleport the entity
         sendToDimension(entity, targetWorld, targetVec, targetRot);
     }
@@ -89,7 +96,8 @@ public class DynamicDimensionHelper {
      */
     private static void sendToDimension(Entity entity, ServerLevel targetWorld, Vec3 targetVec, float targetRot) {
         // ensure destination chunk is loaded before we put the player in it
-        targetWorld.getChunk(new BlockPos(targetVec));
+        Vec3i targetVec3i = new Vec3i((int) targetVec.x(), (int) targetVec.y(), (int) targetVec.z());
+        targetWorld.getChunk(new BlockPos(targetVec3i));
         // teleport the entity
         ITeleporter teleporter = DirectTeleporter.create(entity, targetVec, targetRot, TentPlacer.TENT_DIRECTION);
         entity.changeDimension(targetWorld, teleporter);
@@ -169,7 +177,7 @@ public class DynamicDimensionHelper {
                                                                   BiFunction<MinecraftServer, ResourceKey<LevelStem>, LevelStem> dimensionFactory) {
 
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
-        ResourceKey<LevelStem> dimensionKey = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, worldKey.location());
+        ResourceKey<LevelStem> dimensionKey = ResourceKey.create(Registries.LEVEL_STEM, worldKey.location());
         LevelStem dimension = dimensionFactory.apply(server, dimensionKey);
 
         // we need to get some private fields from MinecraftServer here
@@ -182,7 +190,8 @@ public class DynamicDimensionHelper {
         LevelStorageAccess levelSave = server.storageSource;
 
         final WorldData worldData = server.getWorldData();
-        final WorldGenSettings worldGenSettings = worldData.worldGenSettings();
+
+//        final WorldGenSettings worldGenSettings = worldData.world;
         final DerivedLevelData derivedLevelData = new DerivedLevelData(worldData, worldData.overworldData());
         // now we have everything we need to create the dimension and the level
         // this is the same order server init creates levels:
@@ -190,12 +199,53 @@ public class DynamicDimensionHelper {
         // then instantiate level, add border listener, add to map, fire world load event
 
         // register the actual dimension
-        Registry<LevelStem> dimensionRegistry = worldGenSettings.dimensions();
-        if (dimensionRegistry instanceof WritableRegistry<LevelStem> writableRegistry) {
-            writableRegistry.register(dimensionKey, dimension, Lifecycle.stable());
-        } else {
+        Registry<LevelStem> dimensionRegistry = server.registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
+        final WorldOptions worldGenSettings = worldData.worldGenOptions();
+
+        // now we have everything we need to create the dimension and the level
+        // this is the same order server init creates levels:
+        // the dimensions are already registered when levels are created, we'll do that first
+        // then instantiate level, add border listener, add to map, fire world load event
+
+        // register the actual dimension
+        LayeredRegistryAccess<RegistryLayer> registries = server.registries();
+        RegistryAccess.ImmutableRegistryAccess  composite = (RegistryAccess.ImmutableRegistryAccess)registries.compositeAccess();
+        HashMap<ResourceKey<? extends Registry<?>>, Registry<?>> regmap;
+
+        // UGLY HACK but works
+        try {
+            regmap =  new HashMap<ResourceKey<? extends Registry<?>>, Registry<?>>((ImmutableMap<ResourceKey<? extends Registry<?>>, Registry<?>>) FieldUtils.readField(composite, "registries", true));
+        } catch (final IllegalAccessException e)
+        {
             throw new IllegalStateException(String.format("Unable to register dimension %s -- dimension registry not writable", dimensionKey.location()));
         }
+
+        ResourceKey<? extends Registry<?>> key = ResourceKey.create(ResourceKey.createRegistryKey(new ResourceLocation("root")),new ResourceLocation("dimension"));
+        MappedRegistry<LevelStem> oldRegistry = (MappedRegistry<LevelStem>) regmap.get(key);
+        Lifecycle oldLifecycle = oldRegistry.registryLifecycle();
+
+        final MappedRegistry<LevelStem> newRegistry = new MappedRegistry<>(Registries.LEVEL_STEM, oldLifecycle, false);
+        for (var entry : oldRegistry.entrySet()) {
+            final ResourceKey<LevelStem> oldKey = entry.getKey();
+            final ResourceKey<Level> oldLevelKey = ResourceKey.create(Registries.DIMENSION, oldKey.location());
+            final LevelStem dim = entry.getValue();
+            if (dim != null && oldLevelKey != worldKey) {
+                Registry.register(newRegistry, oldKey, dim);
+            }
+        }
+        Registry.register(newRegistry, dimensionKey, dimension);
+
+        regmap.replace(key, newRegistry);
+
+        Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>> newmap = (Map<? extends ResourceKey<? extends Registry<?>>, ? extends Registry<?>>) regmap;
+        try {
+            FieldUtils.writeField(composite, "registries", newmap,true);
+
+        }catch (final IllegalAccessException e)
+        {
+            throw new IllegalStateException(String.format("Unable to register dimension %s -- dimension registry not writable", dimensionKey.location()));
+        }
+
 
         // now we have everything we need to create the world instance
         ServerLevel newWorld = new ServerLevel(
@@ -206,10 +256,11 @@ public class DynamicDimensionHelper {
                 worldKey,
                 dimension,
                 chunkListener,
-                worldGenSettings.isDebug(),
-                BiomeManager.obfuscateSeed(worldGenSettings.seed()),
+                worldData.isDebugWorld(),
+                BiomeManager.obfuscateSeed(worldData.worldGenOptions().seed()),
                 ImmutableList.of(),
-                false   // "tick time", true for overworld, always false for everything else
+                false,   // "tick time", true for overworld, always false for everything else
+                null
         );
 
         // add world border listener
@@ -223,6 +274,9 @@ public class DynamicDimensionHelper {
 
         // fire world load event
         MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(newWorld)); // event isn't cancellable
+
+
+        // update clients' dimension lists
 
         return newWorld;
     }

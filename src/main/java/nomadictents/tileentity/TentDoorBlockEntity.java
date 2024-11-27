@@ -3,6 +3,7 @@ package nomadictents.tileentity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -37,6 +38,7 @@ import nomadictents.util.TentSize;
 import nomadictents.util.TentType;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -221,11 +223,11 @@ public class TentDoorBlockEntity extends BlockEntity {
      */
     public TentDoorResult canEnter(final Entity entity) {
         // prevent null or client-side logic
-        if (null == entity || entity.level.isClientSide()) {
+        if (null == entity || entity.level().isClientSide()) {
             return TentDoorResult.DENY_OTHER;
         }
         // always allow use when inside a tent
-        boolean insideTent = DynamicDimensionHelper.isInsideTent(entity.level);
+        boolean insideTent = DynamicDimensionHelper.isInsideTent(entity.level());
         if (insideTent) {
             return TentDoorResult.ALLOW;
         }
@@ -252,7 +254,7 @@ public class TentDoorBlockEntity extends BlockEntity {
         }
         // prevent when tent is incomplete (skip this check when inside tent)
         TentPlacer tentPlacer = TentPlacer.getInstance();
-        if (!tentPlacer.isTent(entity.level, this.worldPosition, this.tent.getType(), TentPlacer.getOverworldSize(this.tent.getSize()), this.direction)) {
+        if (!tentPlacer.isTent(entity.level(), this.worldPosition, this.tent.getType(), TentPlacer.getOverworldSize(this.tent.getSize()), this.direction)) {
             return TentDoorResult.DENY_INCOMPLETE;
         }
         return TentDoorResult.ALLOW;
@@ -264,11 +266,11 @@ public class TentDoorBlockEntity extends BlockEntity {
      */
     public TentDoorResult canRemove(final LivingEntity entity) {
         // prevent null or client-side logic
-        if (null == entity || entity.level.isClientSide()) {
+        if (null == entity || entity.level().isClientSide()) {
             return TentDoorResult.DENY_OTHER;
         }
         // prevent remove in tent dimension
-        boolean insideTent = DynamicDimensionHelper.isInsideTent(entity.level);
+        boolean insideTent = DynamicDimensionHelper.isInsideTent(entity.level());
         if (insideTent) {
             return TentDoorResult.DENY_OTHER;
         }
@@ -287,7 +289,7 @@ public class TentDoorBlockEntity extends BlockEntity {
         }
         // prevent when tent is incomplete
         TentPlacer tentPlacer = TentPlacer.getInstance();
-        if (!tentPlacer.isTent(entity.level, this.worldPosition, this.tent.getType(), TentPlacer.getOverworldSize(this.tent.getSize()), this.direction)) {
+        if (!tentPlacer.isTent(entity.level(), this.worldPosition, this.tent.getType(), TentPlacer.getOverworldSize(this.tent.getSize()), this.direction)) {
             return TentDoorResult.DENY_INCOMPLETE;
         }
         return TentDoorResult.ALLOW;
@@ -295,7 +297,7 @@ public class TentDoorBlockEntity extends BlockEntity {
 
     public void onEnter(final Entity entity) {
         // ensure server side
-        if (entity.level.isClientSide || null == entity.getServer()) {
+        if (entity.level().isClientSide || null == entity.getServer()) {
             return;
         }
         // ensure no cooldown
@@ -303,7 +305,7 @@ public class TentDoorBlockEntity extends BlockEntity {
             return;
         }
         MinecraftServer server = entity.getServer();
-        boolean insideTent = DynamicDimensionHelper.isInsideTent(entity.level);
+        boolean insideTent = DynamicDimensionHelper.isInsideTent(entity.level());
 
         if (insideTent) {
             // teleport to spawn dimension and position
@@ -330,8 +332,16 @@ public class TentDoorBlockEntity extends BlockEntity {
      */
     private boolean monstersNearby(Player player) {
         final AABB box = new AABB(this.worldPosition).inflate(8.0D, 5.0D, 8.0D);
-        List<Monster> list = player.level.getEntitiesOfClass(Monster.class, box, e -> e.isPreventingPlayerRest(player));
-        return !list.isEmpty();
+        try (Level level = player.level())
+        {
+            List<Monster> list = level.getEntitiesOfClass(Monster.class, box, e -> e.isPreventingPlayerRest(player));
+            return !list.isEmpty();
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
+
     }
 
     public Tent getTent() {
@@ -363,7 +373,7 @@ public class TentDoorBlockEntity extends BlockEntity {
     @Nullable
     public ServerLevel getSpawnDimension() {
         if (this.level != null && !this.level.isClientSide) {
-            return this.level.getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, this.spawnDimension));
+            return this.level.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, this.spawnDimension));
         }
         return null;
     }

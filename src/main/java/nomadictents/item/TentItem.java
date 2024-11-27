@@ -22,7 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+//import net.minecraft.world.level.material;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -142,7 +143,7 @@ public class TentItem extends Item {
             }
             // determine if placement position is valid
             BlockState replace = context.getLevel().getBlockState(placePos);
-            if (replace.getMaterial() != Material.AIR && !replace.getMaterial().isLiquid()) {
+            if (!replace.isAir() && replace.getFluidState() != Fluids.EMPTY.defaultFluidState()) {
                 return InteractionResult.FAIL;
             }
             if (canPlaceTent(context.getLevel(), placePos, context.getHorizontalDirection())) {
@@ -202,7 +203,7 @@ public class TentItem extends Item {
             return;
         }
         // locate selected block
-        BlockHitResult result = clipFrom(entity, entity.getAttribute(ForgeMod.REACH_DISTANCE.get()).getValue());
+        BlockHitResult result = clipFrom(entity, entity.getAttribute(ForgeMod.BLOCK_REACH.get()).getValue());
         if (result.getType() != HitResult.Type.BLOCK) {
             entity.releaseUsingItem();
             return;
@@ -322,6 +323,6 @@ public class TentItem extends Item {
         float cosPitch = -Mth.cos(pitch);
         float sinPitch = Mth.sin(pitch);
         final Vec3 endVec = startVec.add(sinYaw * cosPitch * range, sinPitch * range, cosYaw * cosPitch * range);
-        return player.level.clip(new ClipContext(startVec, endVec, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
+        return player.level().clip(new ClipContext(startVec, endVec, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
     }
 }

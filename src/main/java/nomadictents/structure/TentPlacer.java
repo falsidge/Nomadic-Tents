@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -30,7 +31,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
-import net.minecraft.world.level.material.Material;
+//import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -293,7 +294,7 @@ public final class TentPlacer {
         for (BlockPos pos : tentBlocks) {
             checkPos = origin.offset(pos.rotate(rotation));
             checkState = level.getBlockState(checkPos);
-            if (!checkState.getMaterial().isReplaceable() && !checkState.is(NTRegistry.DOOR_FRAME.get())) {
+            if (!checkState.canBeReplaced() && !checkState.is(NTRegistry.DOOR_FRAME.get())) {
                 return false;
             }
         }
@@ -638,7 +639,7 @@ public final class TentPlacer {
                 // determine block location
                 p = origin.offset(x, 0, z);
                 // determine which block state to place
-                rigid = level.getBlockState(p.above()).getMaterial() == Material.BARRIER;
+                rigid = level.getBlockState(p.above()).is(Blocks.BARRIER);
                 state = rigid ? rigidDirt : dirt;
                 // place in a column at this location
                 if (rigid || fill) {
@@ -708,7 +709,7 @@ public final class TentPlacer {
                         continue;
                     }
                     // determine which block state to place
-                    rigid = level.getBlockState(p.above()).getMaterial() == Material.BARRIER;
+                    rigid = level.getBlockState(p.above()).is(Blocks.BARRIER);
                     state = rigid ? rigidDirt : dirt;
                     // place in a column at this location
                     for (int y = 0, l = layersOld + 1; y < l; y++) {
@@ -732,7 +733,7 @@ public final class TentPlacer {
                     // determine block location
                     p = origin.offset(x, 0, z);
                     // determine which block state to place
-                    rigid = level.getBlockState(p.above()).getMaterial() == Material.BARRIER;
+                    rigid = level.getBlockState(p.above()).is(Blocks.BARRIER);
                     if (rigid) {
                         state = rigidDirt;
                     } else {
@@ -824,7 +825,7 @@ public final class TentPlacer {
         for (Block b : ForgeRegistries.BLOCKS.tags().getTag(tentWallTag)) {
             List<StructureTemplate.StructureBlockInfo> filtered = template.filterBlocks(origin, placement, b, false);
             for (StructureTemplate.StructureBlockInfo blockInfo : filtered) {
-                tentBlocks.add(blockInfo.pos);
+                tentBlocks.add(blockInfo.pos());
             }
         }
         // add positions to the map
