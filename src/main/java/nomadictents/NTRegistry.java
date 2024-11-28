@@ -147,8 +147,8 @@ public final class NTRegistry {
         // register tents for each type and size
         for (TentType type : TentType.values()) {
             for (TentSize width : TentSize.values()) {
-                ITEMS.register(width.getSerializedName() + "_" + type.getSerializedName(), () ->
-                        new TentItem(type, width, new Item.Properties().stacksTo(1)));
+                TENTS.add(ITEMS.register(width.getSerializedName() + "_" + type.getSerializedName(), () ->
+                        new TentItem(type, width, new Item.Properties().stacksTo(1))));
             }
         }
 
