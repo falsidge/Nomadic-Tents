@@ -16,7 +16,6 @@ import nomadictents.NomadicTents;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class TepeeBlock extends TentBlock {

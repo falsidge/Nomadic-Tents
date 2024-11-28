@@ -5,21 +5,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
-//import net.minecraft.world.level.material.Material;
-//import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -29,15 +21,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import nomadictents.block.FrameBlock;
-import nomadictents.block.IndluWallBlock;
-import nomadictents.block.QuarterTentBlock;
-import nomadictents.block.ShamiyanaWallBlock;
-import nomadictents.block.TentBlock;
-import nomadictents.block.TentDoorBlock;
-import nomadictents.block.TepeeBlock;
-import nomadictents.block.YurtRoofBlock;
-import nomadictents.block.YurtWallBlock;
+import nomadictents.block.*;
 import nomadictents.dimension.EmptyChunkGenerator;
 import nomadictents.item.MalletItem;
 import nomadictents.item.TentItem;
@@ -130,6 +114,7 @@ public final class NTRegistry {
             }
         }
     }
+
     // register crafting items
     public static final RegistryObject<Item> TENT_CANVAS = ITEMS.register("tent_canvas", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> YURT_SECTION = ITEMS.register("yurt_section", () -> new Item(new Item.Properties()));

@@ -13,7 +13,6 @@ import nomadictents.NomadicTents;
 import nomadictents.block.TepeeBlock;
 
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public class TepeeStructureProcessor extends StructureProcessor {
 

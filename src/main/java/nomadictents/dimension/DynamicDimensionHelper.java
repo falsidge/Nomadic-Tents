@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
@@ -31,12 +30,12 @@ import nomadictents.structure.TentPlacer;
 import nomadictents.util.Tent;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
-
-import static org.apache.commons.lang3.reflect.FieldUtils.getField;
 
 
 /**
