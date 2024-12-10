@@ -1,6 +1,4 @@
 {
-
-  "has_precipitation": false,
   "scale": 0.05,
   "effects": {
     "mood_sound": {
@@ -39,7 +37,7 @@
   },
   "spawn_costs": {},
   "player_spawn_friendly": true,
-  "precipitation": "rain",
+  "has_precipitation": false,
   "creature_spawn_probability": 0,
   "temperature": 0.8,
   "downfall": 0.4,
