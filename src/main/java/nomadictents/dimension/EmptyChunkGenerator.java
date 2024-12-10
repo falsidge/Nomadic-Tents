@@ -53,22 +53,10 @@ public class EmptyChunkGenerator extends ChunkGenerator {
     // during FMLCommonSetupEvent::enqueueWork
     // (unless and until a forge registry wrapper becomes made for chunk generators)
     public static final Codec<EmptyChunkGenerator> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-//            // the registry lookup doesn't actually serialize, so we don't need a field for it
-//            RegistryOps.retrieveGetter(Registries.STRUCTURE_SET).of(EmptyChunkGenerator::getStructureSetRegistry),
-//            RegistryOps.retrieveGetter(Registries.BIOME).of(EmptyChunkGenerator::getBiomeRegistry)
-//            ResourceKey.codec(Registries.STRUCTURE_SET).fieldOf("dimension").forGetter(EmptyChunkGenerator::getStructureSetRegistry),
-//            ResourceKey.codec(Registries.BIOME).fieldOf("dimension").forGetter(EmptyChunkGenerator::getBiomeRegistry)
-
-//            RegistryOps.retrieveRegistryLookup(Registries.BIOME).forGetter(EmptyChunkGenerator::getBiomeRegistry)
             BiomeSource.CODEC.fieldOf("biome_source").forGetter(EmptyChunkGenerator::getBiomeRegistry)
     ).apply(builder, EmptyChunkGenerator::new));
 
-//    private final Registry<StructureSet> structures;
     private final BiomeSource biomes;
-
-//    public Registry<StructureSet> getStructureSetRegistry() {
-//        return structures;
-//    }
 
     public BiomeSource getBiomeRegistry() {
         return this.biomes;
@@ -78,11 +66,10 @@ public class EmptyChunkGenerator extends ChunkGenerator {
     public EmptyChunkGenerator(MinecraftServer server) {
         this(new FixedBiomeSource(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(TENT_BIOME)));
     }
-//
-//    // create chunk generator when dimension is loaded from the dimension registry on server init
+
+   // create chunk generator when dimension is loaded from the dimension registry on server init
     public EmptyChunkGenerator(BiomeSource biomeSource) {
         super(biomeSource);
-//        this.structures = structures;
         this.biomes = biomeSource;
     }
 
