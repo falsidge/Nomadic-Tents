@@ -9,6 +9,7 @@ group = project.maven_group
 archivesBaseName = project.archives_base_name
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+jarJar.enable()
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -95,6 +96,9 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
+    maven {
+        url "https://maven.commoble.net/"
+    }
 }
 
 dependencies {
@@ -105,6 +109,12 @@ dependencies {
     compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
     // at runtime, use the full JEI jar for Forge
     runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
+    implementation fg.deobf("commoble.infiniverse:${infiniverse_branch}:${infiniverse_version}")
+    jarJar(group: 'commoble.infiniverse', name: "${infiniverse_branch}", version: "[${infiniverse_min_version}, ${infiniverse_max_version})")
+}
+
+tasks.named('jarJar') {
+    // ...
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.

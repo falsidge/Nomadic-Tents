@@ -20,7 +20,7 @@ public class DimensionFactory {
     public static final ResourceKey<DimensionType> TYPE_KEY = ResourceKey.create(Registries.DIMENSION_TYPE,
             new ResourceLocation(NomadicTents.MODID, "tent"));
 
-    public static LevelStem createDimension(MinecraftServer server, ResourceKey<LevelStem> key) {
+    public static LevelStem createDimension(MinecraftServer server) {
         return new LevelStem(getDimensionTypeHolder(server), new EmptyChunkGenerator(server));
     }
 
